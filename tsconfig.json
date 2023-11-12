@@ -8,6 +8,7 @@
     "jsx": "react",
     "incremental": true,
     "outDir": "./.ts-cache/",
+    "skipLibCheck": true,
     "strictNullChecks": true
   },
   "include": ["./src/**/*"]
