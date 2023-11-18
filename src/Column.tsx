@@ -1,8 +1,9 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 import * as color from './color'
 import { Card } from './Card'
 import { PlusIcon } from './Icon'
+import { InputForm as _InputForm } from './InputFrom'
 
 export function Column({
   title,
@@ -16,14 +17,35 @@ export function Column({
 }) {
   const totalCount = cards.length
 
+  const [text, setText] = useState('')
+  const [inputMode, setInputMode] = useState(false)
+  const toggleInput = () => setInputMode(v => !v)
+  const confirmInput = () => {
+    console.log(text)
+    setText('')
+  }
+  const cancelInput = () => {
+    setText('')
+    setInputMode(false)
+  }
+
   return (
     <Container>
       <Header>
         <CountBadge>{totalCount}</CountBadge>
         <ColumnName>{title}</ColumnName>
 
-        <AddButton />
+        <AddButton onClick={toggleInput} />
       </Header>
+
+      {inputMode && (
+        <InputForm
+          value={text}
+          onChange={setText}
+          onConfirm={confirmInput}
+          onCancel={cancelInput}
+        />
+      )}
 
       <VerticalScroll>
         {cards.map(({ id, text }) => (
@@ -81,6 +103,10 @@ const AddButton = styled.button.attrs({
   :hover {
     color: ${color.Blue};
   }
+`
+
+const InputForm = styled(_InputForm)`
+  padding: 8px;
 `
 
 const VerticalScroll = styled.div`
