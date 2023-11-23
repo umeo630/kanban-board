@@ -1,13 +1,23 @@
 import React from 'react'
 import styled from 'styled-components'
 import * as color from './color'
-import { SearchIcon as _SearchIcon } from './Icon'
+import { SearchIcon as _SearchIcon } from './icon'
 
-export function CardFilter() {
+export function CardFilter({
+  value,
+  onChange,
+}: {
+  value?: string
+  onChange?(value: string): void
+}) {
   return (
     <Container>
       <SearchIcon />
-      <Input placeholder="Filter cards" />
+      <Input
+        placeholder="Filter cards"
+        value={value}
+        onChange={e => onChange?.(e.currentTarget.value)}
+      />
     </Container>
   )
 }
@@ -28,7 +38,7 @@ const SearchIcon = styled(_SearchIcon)`
 
 const Input = styled.input.attrs({ type: 'search' })`
   width: 100%;
-  padding: 6px 8px 6px 0;
+  padding: 6px 8px 6px 6px;
   color: ${color.White};
   font-size: 14px;
 
