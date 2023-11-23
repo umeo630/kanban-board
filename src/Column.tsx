@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import * as color from './color'
 import { Card } from './Card'
 import { PlusIcon } from './Icon'
-import { InputForm as _InputForm } from './InputFrom'
+import { InputForm as _InputForm } from './InputForm'
 
 export function Column({
   title,
