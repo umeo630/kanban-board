@@ -69,7 +69,7 @@ export function Column({
 const Container = styled.div`
   display: flex;
   flex-flow: column;
-  width: 355px;
+  width: 340px;
   height: 100%;
   border: solid 1px ${color.Silver};
   border-radius: 6px;
