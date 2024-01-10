@@ -63,6 +63,7 @@ export function Column({
             <Card text={text} />
           </Card.DropArea>
         ))}
+        <Card.DropArea style={{ height: '100%' }} />
       </VerticalScroll>
     </Container>
   )
