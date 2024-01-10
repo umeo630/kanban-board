@@ -5,16 +5,26 @@ import { CheckIcon as _CheckIcon, TrashIcon } from './icon'
 
 Card.DropArea = DropArea
 
-export function Card({ text }: { text?: string }) {
+export function Card({
+  text,
+  onDragStart,
+  onDragEnd,
+}: {
+  text?: string
+  onDragStart?(): void
+  onDragEnd?(): void
+}) {
   const [drag, setDrag] = useState(false)
 
   return (
     <Container
       style={{ opacity: drag ? 0.5 : undefined }}
       onDragStart={() => {
+        onDragStart?.()
         setDrag(true)
       }}
       onDragEnd={() => {
+        onDragEnd?.()
         setDrag(false)
       }}
     >
