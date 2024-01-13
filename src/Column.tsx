@@ -9,6 +9,8 @@ export function Column({
   title,
   filterValue: rawFileterValue,
   cards: rawCards,
+  onCardDragStart,
+  onCardDrop,
 }: {
   title?: string
   filterValue?: string
@@ -16,6 +18,8 @@ export function Column({
     id: string
     text?: string
   }[]
+  onCardDragStart?(id: string): void
+  onCardDrop?(entired: string | null): void
 }) {
   const filterValue = rawFileterValue?.trim()
   const keywords = filterValue?.toLowerCase().split(/\s+/g) ?? []
@@ -40,6 +44,11 @@ export function Column({
   const [draggingCardId, setDraggingCardId] = useState<string | undefined>(
     undefined,
   )
+
+  const handleCardDragStart = (id: string) => {
+    onCardDragStart?.(id)
+    setDraggingCardId(id)
+  }
 
   return (
     <Container>
@@ -69,10 +78,11 @@ export function Column({
               draggingCardId !== undefined &&
               (draggingCardId === id || cards[i - 1]?.id === draggingCardId)
             }
+            onDrop={() => onCardDrop?.(id)}
           >
             <Card
               text={text}
-              onDragStart={() => setDraggingCardId(id)}
+              onDragStart={() => handleCardDragStart(id)}
               onDragEnd={() => setDraggingCardId(undefined)}
             />
           </Card.DropArea>
@@ -83,6 +93,7 @@ export function Column({
             draggingCardId !== undefined &&
             cards[cards.length - 1].id === draggingCardId
           }
+          onDrop={() => onCardDrop?.(null)}
         />
       </VerticalScroll>
     </Container>
