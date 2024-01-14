@@ -91,7 +91,7 @@ export function Column({
           style={{ height: '100%' }}
           disabled={
             draggingCardId !== undefined &&
-            cards[cards.length - 1].id === draggingCardId
+            cards[cards.length - 1]?.id === draggingCardId
           }
           onDrop={() => onCardDrop?.(null)}
         />

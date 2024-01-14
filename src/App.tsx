@@ -5,6 +5,9 @@ import { Column } from './Column'
 
 export function App() {
   const [filterValue, setFilterValue] = useState('')
+  const [draggingCardId, setDraggingCardId] = useState<string | undefined>(
+    undefined,
+  )
   const [columns, setColumns] = useState([
     {
       id: 'A',
@@ -35,7 +38,50 @@ export function App() {
     },
   ])
 
-  // TODO: setColumnsでidの書き換えで並び替えを実現
+  const dropCardTo = (toId: string | null) => {
+    const fromId = draggingCardId
+    if (!fromId) return
+    setDraggingCardId(undefined)
+    if (fromId === toId) return
+    setColumns(columns => {
+      // 現在のカード情報を保持
+      const card = columns.flatMap(col => col.cards).find(c => c.id === fromId)
+      if (!card) return columns
+
+      return columns.map(column => {
+        let newColumn = column
+
+        // 移動するカードを含むカラムの場合
+        // 移動するカード以外を保持
+        if (newColumn.cards.some(c => c.id === fromId)) {
+          newColumn = {
+            ...newColumn,
+            cards: newColumn.cards.filter(c => c.id !== fromId),
+          }
+        }
+
+        // カラムの末尾に移動する場合
+        if (newColumn.id === toId) {
+          newColumn = {
+            ...newColumn,
+            cards: [...newColumn.cards, card],
+          }
+        }
+        // カラムの末尾以外に移動
+        else if (newColumn.cards.some(c => c.id === toId)) {
+          newColumn = {
+            ...newColumn,
+            cards: newColumn.cards.flatMap(c =>
+              c.id === toId ? [card, c] : [c],
+            ),
+          }
+        }
+
+        return newColumn
+      })
+    })
+  }
+
   return (
     <Container>
       <Header filterValue={filterValue} onFilterChange={setFilterValue} />
@@ -48,6 +94,8 @@ export function App() {
               title={title}
               filterValue={filterValue}
               cards={cards}
+              onCardDragStart={cardId => setDraggingCardId(cardId)}
+              onCardDrop={entered => dropCardTo(entered ?? columId)}
             />
           ))}
         </HorizontalScroll>
