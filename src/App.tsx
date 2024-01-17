@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import styled from 'styled-components'
 import { Header as _Header } from './Header'
 import { Column } from './Column'
+import { produce } from 'immer'
 
 export function App() {
   const [filterValue, setFilterValue] = useState('')
@@ -43,43 +44,35 @@ export function App() {
     if (!fromId) return
     setDraggingCardId(undefined)
     if (fromId === toId) return
-    setColumns(columns => {
-      // 現在のカード情報を保持
-      const card = columns.flatMap(col => col.cards).find(c => c.id === fromId)
-      if (!card) return columns
+    type Columns = typeof columns
+    setColumns(
+      produce((columns: Columns) => {
+        const card = columns
+          .flatMap(col => col.cards)
+          .find(c => c.id === fromId)
 
-      return columns.map(column => {
-        let newColumn = column
+        if (!card) return
 
-        // 移動するカードを含むカラムの場合
-        // 移動するカード以外を保持
-        if (newColumn.cards.some(c => c.id === fromId)) {
-          newColumn = {
-            ...newColumn,
-            cards: newColumn.cards.filter(c => c.id !== fromId),
-          }
+        const fromColumn = columns.find(col =>
+          col.cards.some(c => c.id === fromId),
+        )
+
+        if (!fromColumn) return
+        fromColumn.cards = fromColumn.cards.filter(c => c.id !== fromId)
+
+        const toColumn = columns.find(
+          col => col.id === toId || col.cards.find(c => c.id === toId),
+        )
+        if (!toColumn) return
+
+        let index = toColumn.cards.findIndex(c => c.id === toId)
+        if (index < 0) {
+          index = toColumn.cards.length
         }
 
-        // カラムの末尾に移動する場合
-        if (newColumn.id === toId) {
-          newColumn = {
-            ...newColumn,
-            cards: [...newColumn.cards, card],
-          }
-        }
-        // カラムの末尾以外に移動
-        else if (newColumn.cards.some(c => c.id === toId)) {
-          newColumn = {
-            ...newColumn,
-            cards: newColumn.cards.flatMap(c =>
-              c.id === toId ? [card, c] : [c],
-            ),
-          }
-        }
-
-        return newColumn
-      })
-    })
+        toColumn.cards.splice(index, 0, card)
+      }),
+    )
   }
 
   return (
