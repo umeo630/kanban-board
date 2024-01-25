@@ -14,9 +14,21 @@ export function App() {
   const [deletingCardId, setDeletingCardId] = useState<string | undefined>(
     undefined,
   )
-  const handleCardDelete = (id: string): void => {
-    console.log('削除対象カードID:', id)
+  const deleteCard = (): void => {
+    const cardId = deletingCardId
+    if (!cardId) return
+
     setDeletingCardId(undefined)
+
+    type Columns = typeof columns
+    setColumns(
+      produce((columns: Columns) => {
+        const column = columns.find(col => col.cards.some(c => c.id === cardId))
+        if (!column) return
+
+        column.cards = column.cards.filter(c => c.id !== cardId)
+      }),
+    )
   }
   const [columns, setColumns] = useState([
     {
@@ -107,7 +119,7 @@ export function App() {
         <Overlay onClick={() => setDeletingCardId(undefined)}>
           <DeleteDialog
             onCancel={() => setDeletingCardId(undefined)}
-            onConfirm={() => handleCardDelete(deletingCardId)}
+            onConfirm={deleteCard}
           />
         </Overlay>
       )}
