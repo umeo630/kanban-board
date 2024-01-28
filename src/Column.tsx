@@ -15,7 +15,7 @@ export function Column({
 }: {
   title?: string
   filterValue?: string
-  cards: {
+  cards?: {
     id: string
     text?: string
   }[]
@@ -25,11 +25,11 @@ export function Column({
 }) {
   const filterValue = rawFileterValue?.trim()
   const keywords = filterValue?.toLowerCase().split(/\s+/g) ?? []
-  const cards = rawCards.filter(
+  const cards = rawCards?.filter(
     ({ text }) =>
       keywords?.every(keyword => text?.toLowerCase().includes(keyword)),
   )
-  const totalCount = rawCards.length
+  const totalCount = rawCards?.length ?? -1
 
   const [text, setText] = useState('')
   const [inputMode, setInputMode] = useState(false)
@@ -55,7 +55,7 @@ export function Column({
   return (
     <Container>
       <Header>
-        <CountBadge>{totalCount}</CountBadge>
+        {totalCount >= 0 && <CountBadge>{totalCount}</CountBadge>}
         <ColumnName>{title}</ColumnName>
 
         <AddButton onClick={toggleInput} />
@@ -70,35 +70,41 @@ export function Column({
         />
       )}
 
-      {filterValue && <ResultCount>{cards.length} results</ResultCount>}
+      {!cards ? (
+        <div></div>
+      ) : (
+        <>
+          {filterValue && <ResultCount>{cards.length} results</ResultCount>}
 
-      <VerticalScroll>
-        {cards.map(({ id, text }, i) => (
-          <Card.DropArea
-            key={id}
-            disabled={
-              draggingCardId !== undefined &&
-              (draggingCardId === id || cards[i - 1]?.id === draggingCardId)
-            }
-            onDrop={() => onCardDrop?.(id)}
-          >
-            <Card
-              text={text}
-              onDragStart={() => handleCardDragStart(id)}
-              onDragEnd={() => setDraggingCardId(undefined)}
-              onDeleteClick={() => onCardDeleteClick?.(id)}
+          <VerticalScroll>
+            {cards.map(({ id, text }, i) => (
+              <Card.DropArea
+                key={id}
+                disabled={
+                  draggingCardId !== undefined &&
+                  (draggingCardId === id || cards[i - 1]?.id === draggingCardId)
+                }
+                onDrop={() => onCardDrop?.(id)}
+              >
+                <Card
+                  text={text}
+                  onDragStart={() => handleCardDragStart(id)}
+                  onDragEnd={() => setDraggingCardId(undefined)}
+                  onDeleteClick={() => onCardDeleteClick?.(id)}
+                />
+              </Card.DropArea>
+            ))}
+            <Card.DropArea
+              style={{ height: '100%' }}
+              disabled={
+                draggingCardId !== undefined &&
+                cards[cards.length - 1]?.id === draggingCardId
+              }
+              onDrop={() => onCardDrop?.(null)}
             />
-          </Card.DropArea>
-        ))}
-        <Card.DropArea
-          style={{ height: '100%' }}
-          disabled={
-            draggingCardId !== undefined &&
-            cards[cards.length - 1]?.id === draggingCardId
-          }
-          onDrop={() => onCardDrop?.(null)}
-        />
-      </VerticalScroll>
+          </VerticalScroll>
+        </>
+      )}
     </Container>
   )
 }

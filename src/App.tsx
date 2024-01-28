@@ -1,10 +1,21 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { Header as _Header } from './Header'
 import { Column } from './Column'
 import { produce } from 'immer'
 import { Overlay as _Overlay } from './Overlay'
 import { DeleteDialog } from './DeleteDialog'
+import { get } from './api'
+
+type Columns = {
+  id: string
+  title?: string
+  text?: string
+  cards?: {
+    id: string
+    text?: string
+  }[]
+}[]
 
 export function App() {
   const [filterValue, setFilterValue] = useState('')
@@ -20,45 +31,32 @@ export function App() {
 
     setDeletingCardId(undefined)
 
-    type Columns = typeof columns
     setColumns(
       produce((columns: Columns) => {
-        const column = columns.find(col => col.cards.some(c => c.id === cardId))
+        const column = columns.find(
+          col => col.cards?.some(c => c.id === cardId),
+        )
         if (!column) return
 
-        column.cards = column.cards.filter(c => c.id !== cardId)
+        column.cards = column.cards?.filter(c => c.id !== cardId)
       }),
     )
   }
-  const [columns, setColumns] = useState([
-    {
-      id: 'A',
-      title: 'TODO',
-      cards: [
-        { id: 'a', text: '朝食をとる🍞' },
-        { id: 'b', text: 'SNSをチェックする🐦' },
-        { id: 'c', text: '布団に入る (:3[___]' },
-      ],
-    },
-    {
-      id: 'B',
-      title: 'Doing',
-      cards: [
-        { id: 'd', text: '顔を洗う👐' },
-        { id: 'e', text: '歯を磨く🦷' },
-      ],
-    },
-    {
-      id: 'C',
-      title: 'Waiting',
-      cards: [],
-    },
-    {
-      id: 'D',
-      title: 'Done',
-      cards: [{ id: 'f', text: '布団から出る (:3っ)っ -=三[＿＿]' }],
-    },
-  ])
+  const [columns, setColumns] = useState<Columns>([])
+
+  useEffect(() => {
+    ;(async () => {
+      const columns = await get('http://localhost:3000/columns')
+      setColumns(columns)
+
+      const cards = await get('http://localhost:3000/cards')
+      setColumns(
+        produce((columns: Columns) => {
+          columns.forEach(column => (column.cards = cards))
+        }),
+      )
+    })()
+  }, [])
 
   const dropCardTo = (toId: string | null) => {
     const fromId = draggingCardId
@@ -70,21 +68,21 @@ export function App() {
       produce((columns: Columns) => {
         const card = columns
           .flatMap(col => col.cards)
-          .find(c => c.id === fromId)
+          .find(c => c?.id === fromId)
 
         if (!card) return
 
-        const fromColumn = columns.find(col =>
-          col.cards.some(c => c.id === fromId),
+        const fromColumn = columns.find(
+          col => col.cards?.some(c => c.id === fromId),
         )
 
-        if (!fromColumn) return
+        if (!fromColumn?.cards) return
         fromColumn.cards = fromColumn.cards.filter(c => c.id !== fromId)
 
         const toColumn = columns.find(
-          col => col.id === toId || col.cards.find(c => c.id === toId),
+          col => col.id === toId || col.cards?.find(c => c.id === toId),
         )
-        if (!toColumn) return
+        if (!toColumn?.cards) return
 
         let index = toColumn.cards.findIndex(c => c.id === toId)
         if (index < 0) {
@@ -110,7 +108,7 @@ export function App() {
               cards={cards}
               onCardDragStart={cardId => setDraggingCardId(cardId)}
               onCardDrop={entered => dropCardTo(entered ?? columId)}
-              onDeleteClick={cardId => setDeletingCardId(cardId)}
+              onCardDeleteClick={cardId => setDeletingCardId(cardId)}
             />
           ))}
         </HorizontalScroll>
