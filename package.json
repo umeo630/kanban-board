@@ -3,12 +3,14 @@
     "start": "parcel ./src/index.html",
     "build": "parcel build ./src/index.html",
     "tsc": "tsc",
-    "format": "prettier --write \"./src/**/*.{ts,tsx}\""
+    "format": "prettier --write \"./src/**/*.{ts,tsx}\"",
+    "start-api": "npx json-server --watch ./api/db.json"
   },
   "devDependencies": {
     "@types/react": "^16.9.34",
     "@types/react-dom": "^16.9.6",
     "@types/styled-components": "^5.1.30",
+    "json-server": "^1.0.0-alpha.23",
     "parcel": "^2.10.2",
     "prettier": "^3.0.3",
     "process": "^0.11.10",
