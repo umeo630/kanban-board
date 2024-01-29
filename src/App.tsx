@@ -46,10 +46,10 @@ export function App() {
 
   useEffect(() => {
     ;(async () => {
-      const columns = await get('http://localhost:3000/columns')
+      const columns = await get('/columns')
       setColumns(columns)
 
-      const cards = await get('http://localhost:3000/cards')
+      const cards = await get('/cards')
       setColumns(
         produce((columns: Columns) => {
           columns.forEach(column => (column.cards = cards))
