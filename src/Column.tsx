@@ -71,7 +71,7 @@ export function Column({
       )}
 
       {!cards ? (
-        <div></div>
+        <Loading />
       ) : (
         <>
           {filterValue && <ResultCount>{cards.length} results</ResultCount>}
@@ -176,4 +176,11 @@ const VerticalScroll = styled.div`
   > :not(:first-child) {
     margin-top: 8px;
   }
+`
+
+const Loading = styled.div.attrs({
+  children: 'Loading...',
+})`
+  padding: 8px;
+  font-size: 14px;
 `
