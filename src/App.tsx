@@ -6,16 +6,20 @@ import { produce } from 'immer'
 import { Overlay as _Overlay } from './Overlay'
 import { DeleteDialog } from './DeleteDialog'
 import { get } from './api'
+import { sortBy } from './util'
 
-type Columns = {
-  id: string
-  title?: string
-  text?: string
-  cards?: {
+type State = {
+  columns?: {
     id: string
+    title?: string
     text?: string
+    cards?: {
+      id: string
+      text?: string
+    }[]
   }[]
-}[]
+  cardsOrder: Record<string, string>
+}
 
 export function App() {
   const [filterValue, setFilterValue] = useState('')
@@ -25,34 +29,24 @@ export function App() {
   const [deletingCardId, setDeletingCardId] = useState<string | undefined>(
     undefined,
   )
-  const deleteCard = (): void => {
-    const cardId = deletingCardId
-    if (!cardId) return
-
-    setDeletingCardId(undefined)
-
-    setColumns(
-      produce((columns: Columns) => {
-        const column = columns.find(
-          col => col.cards?.some(c => c.id === cardId),
-        )
-        if (!column) return
-
-        column.cards = column.cards?.filter(c => c.id !== cardId)
-      }),
-    )
-  }
-  const [columns, setColumns] = useState<Columns>([])
+  const [{ columns }, setData] = useState<State>({ cardsOrder: {} })
 
   useEffect(() => {
     ;(async () => {
       const columns = await get('/columns')
-      setColumns(columns)
+      setData(
+        produce((draft: State) => {
+          draft.columns = columns
+        }),
+      )
 
       const cards = await get('/cards')
-      setColumns(
-        produce((columns: Columns) => {
-          columns.forEach(column => (column.cards = cards))
+      const cardsOrder = await get('/cardsOrder')
+      setData(
+        produce((draft: State) => {
+          draft.columns?.forEach(
+            column => (column.cards = sortBy(cards, cardsOrder, column.id)),
+          )
         }),
       )
     })()
@@ -63,23 +57,22 @@ export function App() {
     if (!fromId) return
     setDraggingCardId(undefined)
     if (fromId === toId) return
-    type Columns = typeof columns
-    setColumns(
-      produce((columns: Columns) => {
-        const card = columns
-          .flatMap(col => col.cards)
+    setData(
+      produce((draft: State) => {
+        const card = draft.columns
+          ?.flatMap(col => col.cards ?? [])
           .find(c => c?.id === fromId)
 
         if (!card) return
 
-        const fromColumn = columns.find(
+        const fromColumn = draft.columns?.find(
           col => col.cards?.some(c => c.id === fromId),
         )
 
         if (!fromColumn?.cards) return
         fromColumn.cards = fromColumn.cards.filter(c => c.id !== fromId)
 
-        const toColumn = columns.find(
+        const toColumn = draft.columns?.find(
           col => col.id === toId || col.cards?.find(c => c.id === toId),
         )
         if (!toColumn?.cards) return
@@ -94,23 +87,45 @@ export function App() {
     )
   }
 
+  const deleteCard = (): void => {
+    const cardId = deletingCardId
+    if (!cardId) return
+
+    setDeletingCardId(undefined)
+
+    setData(
+      produce((draft: State) => {
+        const column = draft.columns?.find(
+          col => col.cards?.some(c => c.id === cardId),
+        )
+        if (!column) return
+
+        column.cards = column.cards?.filter(c => c.id !== cardId)
+      }),
+    )
+  }
+
   return (
     <Container>
       <Header filterValue={filterValue} onFilterChange={setFilterValue} />
 
       <MainArea>
         <HorizontalScroll>
-          {columns.map(({ id: columId, title, cards }) => (
-            <Column
-              key={columId}
-              title={title}
-              filterValue={filterValue}
-              cards={cards}
-              onCardDragStart={cardId => setDraggingCardId(cardId)}
-              onCardDrop={entered => dropCardTo(entered ?? columId)}
-              onCardDeleteClick={cardId => setDeletingCardId(cardId)}
-            />
-          ))}
+          {!columns ? (
+            <Loading />
+          ) : (
+            columns.map(({ id: columId, title, cards }) => (
+              <Column
+                key={columId}
+                title={title}
+                filterValue={filterValue}
+                cards={cards}
+                onCardDragStart={cardId => setDraggingCardId(cardId)}
+                onCardDrop={entered => dropCardTo(entered ?? columId)}
+                onCardDeleteClick={cardId => setDeletingCardId(cardId)}
+              />
+            ))
+          )}
         </HorizontalScroll>
       </MainArea>
       {deletingCardId && (
@@ -163,4 +178,9 @@ const Overlay = styled(_Overlay)`
   display: flex;
   justify-content: center;
   align-items: center;
+`
+const Loading = styled.div.attrs({
+  children: 'Loading...',
+})`
+  font-size: 14px;
 `
