@@ -5,8 +5,8 @@ import { Column } from './Column'
 import { produce } from 'immer'
 import { Overlay as _Overlay } from './Overlay'
 import { DeleteDialog } from './DeleteDialog'
-import { get } from './api'
-import { sortBy } from './util'
+import { get, post } from './api'
+import { randomID, sortBy } from './util'
 
 type State = {
   columns?: {
@@ -62,9 +62,11 @@ export function App() {
     )
   }
 
-  const addCard = (columnId: string) => {
-    // TODO:idをランダム生成
-    const cardId = 'new'
+  const addCard = async (columnId: string) => {
+    const column = columns?.find(col => col.id === columnId)
+    if (!column) return
+    const text = column.text
+    const cardId = randomID()
     setData(
       produce((draft: State) => {
         const coulumn = draft.columns?.find(col => col.id === columnId)
@@ -75,6 +77,7 @@ export function App() {
         })
       }),
     )
+    post('/cards', { id: cardId, text: text })
   }
 
   const dropCardTo = (toId: string | null) => {
