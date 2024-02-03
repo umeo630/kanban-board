@@ -52,6 +52,31 @@ export function App() {
     })()
   }, [])
 
+  const setText = (columnId: string, value: string) => {
+    setData(
+      produce((draft: State) => {
+        const column = draft.columns?.find(col => col.id === columnId)
+        if (!column) return
+        column.text = value
+      }),
+    )
+  }
+
+  const addCard = (columnId: string) => {
+    // TODO:idをランダム生成
+    const cardId = 'new'
+    setData(
+      produce((draft: State) => {
+        const coulumn = draft.columns?.find(col => col.id === columnId)
+        if (!coulumn) return
+        coulumn.cards?.unshift({
+          id: cardId,
+          text: coulumn.text,
+        })
+      }),
+    )
+  }
+
   const dropCardTo = (toId: string | null) => {
     const fromId = draggingCardId
     if (!fromId) return
@@ -114,7 +139,7 @@ export function App() {
           {!columns ? (
             <Loading />
           ) : (
-            columns.map(({ id: columId, title, cards }) => (
+            columns.map(({ id: columId, title, cards, text }) => (
               <Column
                 key={columId}
                 title={title}
@@ -123,6 +148,9 @@ export function App() {
                 onCardDragStart={cardId => setDraggingCardId(cardId)}
                 onCardDrop={entered => dropCardTo(entered ?? columId)}
                 onCardDeleteClick={cardId => setDeletingCardId(cardId)}
+                text={text}
+                onTextChange={value => setText(columId, value)}
+                onTextConfirm={() => addCard(columId)}
               />
             ))
           )}
