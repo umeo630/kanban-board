@@ -13,3 +13,12 @@ export async function post(path: string, params?: any) {
 
   return await response.json()
 }
+
+export async function put(path: string, params?: any) {
+  const response = await fetch(endPoint + path, {
+    method: 'PUT',
+    body: JSON.stringify(params),
+  })
+
+  return await response.json()
+}

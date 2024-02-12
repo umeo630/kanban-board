@@ -39,3 +39,37 @@ export function randomID() {
 
   return id
 }
+/**
+ * リストの並べ替え
+ * @param order 順序情報
+ * @param id 対象ID
+ * @param toId 移動先のID
+ * @return 並べ替え後のリスト
+ */
+export function reOrderCards<V extends string | null>(
+  order: Record<string, V>,
+  id: Exclude<V, null>,
+  toId: V = null as V,
+) {
+  const diff: Record<string, V> = {}
+  if (id === toId || order[id] === toId) {
+    return diff
+  }
+
+  const [deleteKey] = Object.entries(order).find(([, v]) => v && v === id) || []
+
+  if (deleteKey) {
+    diff[deleteKey] = order[id]
+  }
+
+  const [insertKey] =
+    Object.entries(order).find(([, v]) => v && v === toId) || []
+
+  if (insertKey) {
+    diff[insertKey] = id as V
+  }
+
+  diff[id] = toId as V
+
+  return { ...order, ...diff }
+}

@@ -5,8 +5,8 @@ import { Column } from './Column'
 import { produce } from 'immer'
 import { Overlay as _Overlay } from './Overlay'
 import { DeleteDialog } from './DeleteDialog'
-import { get, post } from './api'
-import { randomID, sortBy } from './util'
+import { get, put, post } from './api'
+import { randomID, reOrderCards, sortBy } from './util'
 
 type State = {
   columns?: {
@@ -18,7 +18,7 @@ type State = {
       text?: string
     }[]
   }[]
-  cardsOrder: Record<string, string>
+  cardsOrder: Record<string, string | null>
 }
 
 export function App() {
@@ -29,7 +29,7 @@ export function App() {
   const [deletingCardId, setDeletingCardId] = useState<string | undefined>(
     undefined,
   )
-  const [{ columns }, setData] = useState<State>({ cardsOrder: {} })
+  const [{ columns, cardsOrder }, setData] = useState<State>({ cardsOrder: {} })
 
   useEffect(() => {
     ;(async () => {
@@ -44,6 +44,7 @@ export function App() {
       const cardsOrder = await get('/cardsOrder')
       setData(
         produce((draft: State) => {
+          draft.cardsOrder = cardsOrder
           draft.columns?.forEach(
             column => (column.cards = sortBy(cards, cardsOrder, column.id)),
           )
@@ -85,34 +86,20 @@ export function App() {
     if (!fromId) return
     setDraggingCardId(undefined)
     if (fromId === toId) return
+
+    const newCardsOrder = reOrderCards(cardsOrder, fromId, toId)
+
     setData(
       produce((draft: State) => {
-        const card = draft.columns
-          ?.flatMap(col => col.cards ?? [])
-          .find(c => c?.id === fromId)
-
-        if (!card) return
-
-        const fromColumn = draft.columns?.find(
-          col => col.cards?.some(c => c.id === fromId),
-        )
-
-        if (!fromColumn?.cards) return
-        fromColumn.cards = fromColumn.cards.filter(c => c.id !== fromId)
-
-        const toColumn = draft.columns?.find(
-          col => col.id === toId || col.cards?.find(c => c.id === toId),
-        )
-        if (!toColumn?.cards) return
-
-        let index = toColumn.cards.findIndex(c => c.id === toId)
-        if (index < 0) {
-          index = toColumn.cards.length
-        }
-
-        toColumn.cards.splice(index, 0, card)
+        draft.cardsOrder = newCardsOrder
+        const unOrderedCards = draft.columns?.flatMap(c => c.cards ?? []) ?? []
+        draft.columns?.forEach(col => {
+          col.cards = sortBy(unOrderedCards, draft.cardsOrder, col.id)
+        })
       }),
     )
+
+    put('/cardsOrder', newCardsOrder)
   }
 
   const deleteCard = (): void => {
