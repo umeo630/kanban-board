@@ -68,17 +68,21 @@ export function App() {
     if (!column) return
     const text = column.text
     const cardId = randomID()
+    const newCardsOrder = reOrderCards(cardsOrder, cardId, cardsOrder[columnId])
+
     setData(
       produce((draft: State) => {
         const coulumn = draft.columns?.find(col => col.id === columnId)
-        if (!coulumn) return
-        coulumn.cards?.unshift({
+        if (!coulumn?.cards) return
+        coulumn.cards.unshift({
           id: cardId,
           text: coulumn.text,
         })
+        draft.cardsOrder = newCardsOrder
       }),
     )
     post('/cards', { id: cardId, text: text })
+    put('/cardsOrder', newCardsOrder)
   }
 
   const dropCardTo = (toId: string | null) => {
