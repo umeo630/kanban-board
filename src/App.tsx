@@ -81,8 +81,9 @@ export function App() {
         draft.cardsOrder = newCardsOrder
       }),
     )
-    post('/cards', { id: cardId, text: text })
-    put('/cardsOrder', newCardsOrder)
+    await post('/cards', { id: cardId, text: text })
+    await put('/cardsOrder', newCardsOrder)
+    setText(columnId, '')
   }
 
   const dropCardTo = (toId: string | null) => {
