@@ -1,15 +1,30 @@
 import { produce } from 'immer'
 import { Reducer } from 'redux'
 
-export type State = {}
+export type State = {
+  filterValue: string
+}
 
-const initialState: State = {}
+const initialState: State = {
+  filterValue: '',
+}
 
 export type Action = {
-  type: ''
+  type: 'Filter.SetFilter'
+  payload: {
+    value: string
+  }
 }
 
 export const reducer: Reducer<State, Action> = produce(
-  (draft: State, action: Action) => {},
+  (draft: State, action: Action) => {
+    switch (action.type) {
+      case 'Filter.SetFilter': {
+        const { value } = action.payload
+        draft.filterValue = value
+        return
+      }
+    }
+  },
   initialState,
 )

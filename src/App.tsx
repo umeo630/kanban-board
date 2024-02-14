@@ -7,6 +7,7 @@ import { Overlay as _Overlay } from './Overlay'
 import { DeleteDialog } from './DeleteDialog'
 import { get, put, post, del } from './api'
 import { randomID, reOrderCards, sortBy } from './util'
+import { useDispatch, useSelector } from 'react-redux'
 
 type State = {
   columns?: {
@@ -22,7 +23,14 @@ type State = {
 }
 
 export function App() {
-  const [filterValue, setFilterValue] = useState('')
+  const dispatch = useDispatch()
+  const filterValue = useSelector(state => state.filterValue)
+  const setFilterValue = (value: string) =>
+    dispatch({
+      type: 'Filter.SetFilter',
+      payload: { value },
+    })
+
   const [draggingCardId, setDraggingCardId] = useState<string | undefined>(
     undefined,
   )
