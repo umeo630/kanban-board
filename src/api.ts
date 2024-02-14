@@ -22,3 +22,12 @@ export async function put(path: string, params?: any) {
 
   return await response.json()
 }
+
+export async function del(path: string, params?: any) {
+  const response = await fetch(endPoint + path, {
+    method: 'DELETE',
+    body: JSON.stringify(params),
+  })
+
+  return await response.json()
+}

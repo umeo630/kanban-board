@@ -5,7 +5,7 @@ import { Column } from './Column'
 import { produce } from 'immer'
 import { Overlay as _Overlay } from './Overlay'
 import { DeleteDialog } from './DeleteDialog'
-import { get, put, post } from './api'
+import { get, put, post, del } from './api'
 import { randomID, reOrderCards, sortBy } from './util'
 
 type State = {
@@ -107,11 +107,12 @@ export function App() {
     put('/cardsOrder', newCardsOrder)
   }
 
-  const deleteCard = (): void => {
+  const deleteCard = async () => {
     const cardId = deletingCardId
     if (!cardId) return
 
     setDeletingCardId(undefined)
+    const newCardsOrder = reOrderCards(cardsOrder, cardId)
 
     setData(
       produce((draft: State) => {
@@ -123,6 +124,11 @@ export function App() {
         column.cards = column.cards?.filter(c => c.id !== cardId)
       }),
     )
+
+    const res = await del(`/cards/${cardId}`)
+    console.log(res)
+
+    await put('/cardsOrder', newCardsOrder)
   }
 
   return (
