@@ -2,6 +2,8 @@
   "scripts": {
     "start": "parcel ./src/index.html",
     "build": "parcel build ./src/index.html",
+    "pretest": "tsc --project ./test/tsconfig.json --outDir ./test/dist",
+    "test": "node ./test/dist/test",
     "tsc": "tsc",
     "format": "prettier --write \"./src/**/*.{ts,tsx}\"",
     "start-api": "npx json-server --watch ./api/db.json",
@@ -14,6 +16,7 @@
     "@types/styled-components": "^5.1.30",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
+    "baretest": "^2.0.0",
     "eslint": "^8.56.0",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
