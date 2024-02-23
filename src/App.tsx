@@ -54,14 +54,13 @@ export function App() {
 
       const cards = await get('/cards')
       const cardsOrder = await get('/cardsOrder')
-      setData(
-        produce((draft: State) => {
-          draft.cardsOrder = cardsOrder
-          draft.columns?.forEach(
-            column => (column.cards = sortBy(cards, cardsOrder, column.id)),
-          )
-        }),
-      )
+      dispatch({
+        type: 'App.SetCards',
+        payload: {
+          cards: cards,
+          cardsOrder: cardsOrder,
+        },
+      })
     })()
   }, [])
 

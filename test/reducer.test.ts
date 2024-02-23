@@ -29,3 +29,73 @@ test('Filter.SetFilter', async () => {
 
   assert.deepStrictEqual(next, expected)
 })
+
+test('App.SetCards', async () => {
+  const prev = produce(initialState, draft => {
+    draft.columns = [
+      {
+        id: 'A',
+      },
+      {
+        id: 'B',
+      },
+    ]
+  })
+
+  const next = reducer(prev, {
+    type: 'App.SetCards',
+    payload: {
+      cards: [
+        {
+          id: '3',
+        },
+        {
+          id: '2',
+        },
+        {
+          id: '1',
+        },
+      ],
+      cardsOrder: {
+        A: '1',
+        '1': '2',
+        '2': 'A',
+        B: '3',
+        '3': 'B',
+      },
+    },
+  })
+
+  const expected = produce(prev, draft => {
+    draft.columns = [
+      {
+        id: 'A',
+        cards: [
+          {
+            id: '1',
+          },
+          {
+            id: '2',
+          },
+        ],
+      },
+      {
+        id: 'B',
+        cards: [
+          {
+            id: '3',
+          },
+        ],
+      },
+    ]
+    draft.cardsOrder = {
+      A: '1',
+      '1': '2',
+      '2': 'A',
+      B: '3',
+      '3': 'B',
+    }
+  })
+
+  assert.deepStrictEqual(next, expected)
+})

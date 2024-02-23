@@ -1,5 +1,6 @@
 import { produce } from 'immer'
 import { Reducer } from 'redux'
+import { sortBy } from './util'
 
 export type State = {
   filterValue: string
@@ -37,6 +38,16 @@ export type Action =
         }[]
       }
     }
+  | {
+      type: 'App.SetCards'
+      payload: {
+        cards: {
+          id: string
+          text?: string
+        }[]
+        cardsOrder: Record<string, string | null>
+      }
+    }
 
 export const reducer: Reducer<State, Action> = produce(
   (draft: State, action: Action) => {
@@ -47,7 +58,23 @@ export const reducer: Reducer<State, Action> = produce(
         return
       }
       case 'App.SetColumns': {
+        const { columns } = action.payload
+
+        draft.columns = columns
         return
+      }
+      case 'App.SetCards': {
+        const { cards: unorderedCards, cardsOrder } = action.payload
+
+        draft.cardsOrder = cardsOrder
+        draft.columns?.forEach(column => {
+          column.cards = sortBy(unorderedCards, cardsOrder, column.id)
+        })
+        return
+      }
+
+      default: {
+        const _: never = action
       }
     }
   },
