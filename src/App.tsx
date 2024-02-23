@@ -37,16 +37,20 @@ export function App() {
   const [deletingCardId, setDeletingCardId] = useState<string | undefined>(
     undefined,
   )
-  const [{ columns, cardsOrder }, setData] = useState<State>({ cardsOrder: {} })
+  const columns = useSelector(state => state.columns)
+  const cardsOrder = useSelector(state => state.cardsOrder)
+  const setData = fn => fn({ cardsOrder: {} })
 
   useEffect(() => {
     ;(async () => {
       const columns = await get('/columns')
-      setData(
-        produce((draft: State) => {
-          draft.columns = columns
-        }),
-      )
+
+      dispatch({
+        type: 'App.SetColumns',
+        payload: {
+          columns,
+        },
+      })
 
       const cards = await get('/cards')
       const cardsOrder = await get('/cardsOrder')

@@ -8,6 +8,7 @@ setImmediate(() => test.run())
 
 const initialState: State = {
   filterValue: '',
+  cardsOrder: {},
 }
 
 test('Filter.SetFilter', async () => {
