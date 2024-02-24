@@ -16,3 +16,10 @@ test('randomID: 重複しない', async () => {
 
   assert.equal(size, unique.size)
 })
+
+test('randomID: 書式パターン通りかどうか', () => {
+  const pattern = new RegExp(/^[0-9A-Za-z_-]{12}$/)
+  const actual = randomID()
+
+  assert.ok(pattern.test(actual), `${actual} does not match ${pattern}`)
+})
