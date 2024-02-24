@@ -1,6 +1,6 @@
 import baretest from 'baretest'
 import assert from 'assert'
-import { randomID } from '../src/util'
+import { randomID, reOrderCards, sortBy } from '../src/util'
 
 const test = baretest('util')
 setImmediate(() => test.run())
@@ -22,4 +22,65 @@ test('randomID: 書式パターン通りかどうか', () => {
   const actual = randomID()
 
   assert.ok(pattern.test(actual), `${actual} does not match ${pattern}`)
+})
+
+test('sortBy', async () => {
+  const sorted = sortBy(
+    [
+      {
+        id: '3',
+      },
+      {
+        id: '2',
+      },
+      {
+        id: '1',
+      },
+    ],
+    {
+      A: '1',
+      '1': '2',
+      '1.5': null,
+      '2': 'A',
+      B: '3',
+      '3': 'B',
+    },
+    'A',
+  )
+
+  const expected = [
+    {
+      id: '1',
+    },
+    {
+      id: '2',
+    },
+  ]
+
+  assert.deepStrictEqual(sorted, expected)
+})
+
+test('reOrderCards', async () => {
+  const cards = reOrderCards(
+    {
+      A: '1',
+      '1': '2',
+      '1.5': null,
+      '2': 'A',
+      B: '3',
+      '3': 'B',
+    },
+    '1',
+    'A',
+  )
+
+  const expected = {
+    A: '2',
+    '2': '1',
+    '1.5': null,
+    '1': 'A',
+    B: '3',
+    '3': 'B',
+  }
+  assert.deepStrictEqual(cards, expected)
 })
