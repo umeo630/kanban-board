@@ -14,11 +14,13 @@ export type State = {
     }[]
   }[]
   cardsOrder: Record<string, string | null>
+  deletingCardId: string | undefined
 }
 
 const initialState: State = {
   filterValue: '',
   cardsOrder: {},
+  deletingCardId: '',
 }
 
 export type Action =
@@ -48,6 +50,15 @@ export type Action =
         cardsOrder: Record<string, string | null>
       }
     }
+  | {
+      type: 'App.SetDeletingCardId'
+      payload: {
+        cardId: string
+      }
+    }
+  | {
+      type: 'Dialog.CancelDeleteCard'
+    }
 
 export const reducer: Reducer<State, Action> = produce(
   (draft: State, action: Action) => {
@@ -70,6 +81,15 @@ export const reducer: Reducer<State, Action> = produce(
         draft.columns?.forEach(column => {
           column.cards = sortBy(unorderedCards, cardsOrder, column.id)
         })
+        return
+      }
+      case 'App.SetDeletingCardId': {
+        const { cardId } = action.payload
+        draft.deletingCardId = cardId
+        return
+      }
+      case 'Dialog.CancelDeleteCard': {
+        draft.deletingCardId = undefined
         return
       }
 

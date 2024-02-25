@@ -34,9 +34,23 @@ export function App() {
   const [draggingCardId, setDraggingCardId] = useState<string | undefined>(
     undefined,
   )
-  const [deletingCardId, setDeletingCardId] = useState<string | undefined>(
-    undefined,
-  )
+  const isDeletingCard = useSelector(state => Boolean(state.deletingCardId))
+
+  const setDeletingCardId = (cardId: string) => {
+    dispatch({
+      type: 'App.SetDeletingCardId',
+      payload: {
+        cardId,
+      },
+    })
+  }
+
+  const cancelDelete = () => {
+    dispatch({
+      type: 'Dialog.CancelDeleteCard',
+    })
+  }
+
   const columns = useSelector(state => state.columns)
   const cardsOrder = useSelector(state => state.cardsOrder)
   const setData = fn => fn({ cardsOrder: {} })
@@ -118,29 +132,29 @@ export function App() {
     put('/cardsOrder', newCardsOrder)
   }
 
-  const deleteCard = async () => {
-    const cardId = deletingCardId
-    if (!cardId) return
+  // const deleteCard = async () => {
+  //   const cardId = deletingCardId
+  //   if (!cardId) return
 
-    setDeletingCardId(undefined)
-    const newCardsOrder = reOrderCards(cardsOrder, cardId)
+  //   setDeletingCardId(undefined)
+  //   const newCardsOrder = reOrderCards(cardsOrder, cardId)
 
-    setData(
-      produce((draft: State) => {
-        const column = draft.columns?.find(
-          col => col.cards?.some(c => c.id === cardId),
-        )
-        if (!column) return
+  //   setData(
+  //     produce((draft: State) => {
+  //       const column = draft.columns?.find(
+  //         col => col.cards?.some(c => c.id === cardId),
+  //       )
+  //       if (!column) return
 
-        column.cards = column.cards?.filter(c => c.id !== cardId)
-      }),
-    )
+  //       column.cards = column.cards?.filter(c => c.id !== cardId)
+  //     }),
+  //   )
 
-    const res = await del(`/cards/${cardId}`)
-    console.log(res)
+  //   const res = await del(`/cards/${cardId}`)
+  //   console.log(res)
 
-    await put('/cardsOrder', newCardsOrder)
-  }
+  //   await put('/cardsOrder', newCardsOrder)
+  // }
 
   return (
     <Container>
@@ -168,12 +182,9 @@ export function App() {
           )}
         </HorizontalScroll>
       </MainArea>
-      {deletingCardId && (
-        <Overlay onClick={() => setDeletingCardId(undefined)}>
-          <DeleteDialog
-            onCancel={() => setDeletingCardId(undefined)}
-            onConfirm={deleteCard}
-          />
+      {isDeletingCard && (
+        <Overlay onClick={() => cancelDelete}>
+          <DeleteDialog />
         </Overlay>
       )}
     </Container>

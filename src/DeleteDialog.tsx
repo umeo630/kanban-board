@@ -2,23 +2,26 @@ import React from 'react'
 import styled from 'styled-components'
 import * as color from './color'
 import { Button, DangerButton } from './Button'
+import { useDispatch } from 'react-redux'
 
-export function DeleteDialog({
-  onConfirm,
-  onCancel,
-  className,
-}: {
-  onConfirm?(): void
-  onCancel?(): void
-  className?: string
-}) {
+export function DeleteDialog({ className }: { className?: string }) {
+  const dispatch = useDispatch()
+  // TODO:Reduxに置き換える
+  const deleteCard = (cardId: string) => {
+    console.log(cardId)
+  }
+  const cancelDelete = () => {
+    dispatch({
+      type: 'Dialog.CancelDeleteCard',
+    })
+  }
   return (
     <Container className={className}>
       <Message>Are you sure to delete?</Message>
 
       <ButtonRow>
-        <DeleteButton onClick={onConfirm} />
-        <CancelButton autoFocus onClick={onCancel} />
+        <DeleteButton onClick={() => deleteCard('A')} />
+        <CancelButton autoFocus onClick={() => cancelDelete()} />
       </ButtonRow>
     </Container>
   )

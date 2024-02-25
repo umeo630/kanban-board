@@ -9,6 +9,7 @@ setImmediate(() => test.run())
 const initialState: State = {
   filterValue: '',
   cardsOrder: {},
+  deletingCardId: '',
 }
 
 test('Filter.SetFilter', async () => {
@@ -98,4 +99,33 @@ test('App.SetCards', async () => {
   })
 
   assert.deepStrictEqual(next, expected)
+})
+
+test('App.SetDeletingCardId', () => {
+  const prev = produce(initialState, draft => {
+    draft.deletingCardId = undefined
+  })
+  const next = reducer(prev, {
+    type: 'App.SetDeletingCardId',
+    payload: { cardId: 'A' },
+  })
+  const expected = produce(initialState, prev => {
+    prev.deletingCardId = 'A'
+  })
+
+  assert.deepEqual(next, expected)
+})
+
+test('Dialog.CancelDeleteCard', () => {
+  const prev = produce(initialState, draft => {
+    draft.deletingCardId = 'A'
+  })
+  const next = reducer(prev, {
+    type: 'Dialog.CancelDeleteCard',
+  })
+  const expected = produce(prev, draft => {
+    draft.deletingCardId = undefined
+  })
+
+  assert.deepEqual(next, expected)
 })
