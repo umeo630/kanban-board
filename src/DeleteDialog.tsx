@@ -2,15 +2,28 @@ import React from 'react'
 import styled from 'styled-components'
 import * as color from './color'
 import { Button, DangerButton } from './Button'
-import { useDispatch } from 'react-redux'
+import { del, put } from './api'
+import { reOrderCards } from './util'
+import { useDispatch, useSelector } from 'react-redux'
 
 export function DeleteDialog({ className }: { className?: string }) {
   const dispatch = useDispatch()
-  // TODO:Reduxに置き換える
-  const deleteCard = (cardId: string) => {
-    console.log(cardId)
+  const deletingCardId = useSelector(state => state.deletingCardId)
+  const cardsOrder = useSelector(state => state.cardsOrder)
+  const onConfirm = async () => {
+    const cardId = deletingCardId
+    if (!cardId) return
+
+    const newCardsOrder = reOrderCards(cardsOrder, cardId)
+
+    dispatch({
+      type: 'Dialog.ConfirmDelete',
+    })
+
+    await del(`/cards/${cardId}`)
+    await put('/cardsOrder', newCardsOrder)
   }
-  const cancelDelete = () => {
+  const onCancel = () => {
     dispatch({
       type: 'Dialog.CancelDeleteCard',
     })
@@ -20,8 +33,8 @@ export function DeleteDialog({ className }: { className?: string }) {
       <Message>Are you sure to delete?</Message>
 
       <ButtonRow>
-        <DeleteButton onClick={() => deleteCard('A')} />
-        <CancelButton autoFocus onClick={() => cancelDelete()} />
+        <DeleteButton onClick={onConfirm} />
+        <CancelButton autoFocus onClick={onCancel} />
       </ButtonRow>
     </Container>
   )

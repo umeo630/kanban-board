@@ -129,3 +129,57 @@ test('Dialog.CancelDeleteCard', () => {
 
   assert.deepEqual(next, expected)
 })
+
+test('Dialog.ConfirmDelete', async () => {
+  const prev = produce(initialState, draft => {
+    draft.deletingCardId = '3'
+
+    draft.cardsOrder = {
+      A: '1',
+      '1': '2',
+      '2': 'A',
+      B: '3',
+      '3': 'B',
+    }
+    draft.columns = [
+      {
+        id: 'A',
+        cards: [
+          {
+            id: '1',
+          },
+          {
+            id: '2',
+          },
+        ],
+      },
+      {
+        id: 'B',
+        cards: [
+          {
+            id: '3',
+          },
+        ],
+      },
+    ]
+  })
+
+  const next = reducer(prev, {
+    type: 'Dialog.ConfirmDelete',
+  })
+
+  const expected = produce(prev, draft => {
+    draft.deletingCardId = undefined
+
+    draft.cardsOrder = {
+      ...draft.cardsOrder,
+      B: 'B',
+      '3': null,
+    }
+
+    const column = draft.columns![1]!
+    column.cards = []
+  })
+
+  assert.deepStrictEqual(next, expected)
+})

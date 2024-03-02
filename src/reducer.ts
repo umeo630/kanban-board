@@ -1,6 +1,6 @@
 import { produce } from 'immer'
 import { Reducer } from 'redux'
-import { sortBy } from './util'
+import { reOrderCards, sortBy } from './util'
 
 export type State = {
   filterValue: string
@@ -14,13 +14,12 @@ export type State = {
     }[]
   }[]
   cardsOrder: Record<string, string | null>
-  deletingCardId: string | undefined
+  deletingCardId?: string
 }
 
 const initialState: State = {
   filterValue: '',
   cardsOrder: {},
-  deletingCardId: '',
 }
 
 export type Action =
@@ -59,6 +58,9 @@ export type Action =
   | {
       type: 'Dialog.CancelDeleteCard'
     }
+  | {
+      type: 'Dialog.ConfirmDelete'
+    }
 
 export const reducer: Reducer<State, Action> = produce(
   (draft: State, action: Action) => {
@@ -90,6 +92,24 @@ export const reducer: Reducer<State, Action> = produce(
       }
       case 'Dialog.CancelDeleteCard': {
         draft.deletingCardId = undefined
+        return
+      }
+      case 'Dialog.ConfirmDelete': {
+        const cardId = draft.deletingCardId
+        if (!cardId) return
+
+        draft.deletingCardId = undefined
+
+        const column = draft.columns?.find(
+          col => col.cards?.some(c => c.id === cardId),
+        )
+        if (!column?.cards) return
+
+        column.cards = column.cards.filter(c => c.id !== cardId)
+
+        const newCardsOrder = reOrderCards(draft.cardsOrder, cardId)
+        draft.cardsOrder = newCardsOrder
+
         return
       }
 

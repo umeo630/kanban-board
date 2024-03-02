@@ -5,7 +5,7 @@ import { Column } from './Column'
 import { produce } from 'immer'
 import { Overlay as _Overlay } from './Overlay'
 import { DeleteDialog } from './DeleteDialog'
-import { get, put, post, del } from './api'
+import { get, put, post } from './api'
 import { randomID, reOrderCards, sortBy } from './util'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -132,30 +132,6 @@ export function App() {
     put('/cardsOrder', newCardsOrder)
   }
 
-  // const deleteCard = async () => {
-  //   const cardId = deletingCardId
-  //   if (!cardId) return
-
-  //   setDeletingCardId(undefined)
-  //   const newCardsOrder = reOrderCards(cardsOrder, cardId)
-
-  //   setData(
-  //     produce((draft: State) => {
-  //       const column = draft.columns?.find(
-  //         col => col.cards?.some(c => c.id === cardId),
-  //       )
-  //       if (!column) return
-
-  //       column.cards = column.cards?.filter(c => c.id !== cardId)
-  //     }),
-  //   )
-
-  //   const res = await del(`/cards/${cardId}`)
-  //   console.log(res)
-
-  //   await put('/cardsOrder', newCardsOrder)
-  // }
-
   return (
     <Container>
       <Header filterValue={filterValue} onFilterChange={setFilterValue} />
@@ -183,7 +159,7 @@ export function App() {
         </HorizontalScroll>
       </MainArea>
       {isDeletingCard && (
-        <Overlay onClick={() => cancelDelete}>
+        <Overlay onClick={cancelDelete}>
           <DeleteDialog />
         </Overlay>
       )}
