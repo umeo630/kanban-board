@@ -183,3 +183,61 @@ test('Dialog.ConfirmDelete', async () => {
 
   assert.deepStrictEqual(next, expected)
 })
+
+test('Card.Drop', async () => {
+  const prev = produce(initialState, draft => {
+    draft.draggingCardId = '1'
+
+    draft.cardsOrder = {
+      A: '1',
+      '1': '2',
+      '2': 'A',
+      B: '3',
+      '3': 'B',
+    }
+    draft.columns = [
+      {
+        id: 'A',
+        cards: [
+          {
+            id: '1',
+          },
+          {
+            id: '2',
+          },
+        ],
+      },
+      {
+        id: 'B',
+        cards: [
+          {
+            id: '3',
+          },
+        ],
+      },
+    ]
+  })
+
+  const next = reducer(prev, {
+    type: 'Card.Drop',
+    payload: {
+      toId: '3',
+    },
+  })
+
+  const expected = produce(prev, draft => {
+    draft.draggingCardId = undefined
+
+    draft.cardsOrder = {
+      ...draft.cardsOrder,
+      A: '2',
+      B: '1',
+      '1': '3',
+    }
+
+    const [card] = draft.columns![0].cards!.splice(0, 1)
+    draft.columns![1].cards!.unshift(card)
+  })
+
+  assert.deepStrictEqual(next, expected)
+})

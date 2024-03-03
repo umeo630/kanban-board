@@ -31,9 +31,15 @@ export function App() {
       payload: { value },
     })
 
-  const [draggingCardId, setDraggingCardId] = useState<string | undefined>(
-    undefined,
-  )
+  const draggingCardId = useSelector(state => state.draggingCardId)
+  const setDraggingCardId = (cardId: string) =>
+    dispatch({
+      type: 'App.SetDraggingCardId',
+      payload: {
+        cardId,
+      },
+    })
+
   const isDeletingCard = useSelector(state => Boolean(state.deletingCardId))
 
   const setDeletingCardId = (cardId: string) => {
@@ -111,14 +117,19 @@ export function App() {
     setText(columnId, '')
   }
 
-  const dropCardTo = (toId: string | null) => {
+  const dropCardTo = (toId: string) => {
     const fromId = draggingCardId
     if (!fromId) return
-    setDraggingCardId(undefined)
     if (fromId === toId) return
 
     const newCardsOrder = reOrderCards(cardsOrder, fromId, toId)
 
+    dispatch({
+      type: 'Card.Drop',
+      payload: {
+        toId,
+      },
+    })
     setData(
       produce((draft: State) => {
         draft.cardsOrder = newCardsOrder
