@@ -10,12 +10,6 @@ import { useDispatch, useSelector } from 'react-redux'
 
 export function App() {
   const dispatch = useDispatch()
-  const filterValue = useSelector(state => state.filterValue)
-  const setFilterValue = (value: string) =>
-    dispatch({
-      type: 'Filter.SetFilter',
-      payload: { value },
-    })
 
   const draggingCardId = useSelector(state => state.draggingCardId)
   const setDraggingCardId = (cardId: string) =>
@@ -117,7 +111,7 @@ export function App() {
 
   return (
     <Container>
-      <Header filterValue={filterValue} onFilterChange={setFilterValue} />
+      <Header />
 
       <MainArea>
         <HorizontalScroll>
@@ -128,7 +122,6 @@ export function App() {
               <Column
                 key={columId}
                 title={title}
-                filterValue={filterValue}
                 cards={cards}
                 onCardDragStart={cardId => setDraggingCardId(cardId)}
                 onCardDrop={entered => dropCardTo(entered ?? columId)}

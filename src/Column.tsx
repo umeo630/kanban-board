@@ -4,10 +4,10 @@ import * as color from './color'
 import { Card } from './Card'
 import { PlusIcon } from './icon'
 import { InputForm as _InputForm } from './InputForm'
+import { useSelector } from 'react-redux'
 
 export function Column({
   title,
-  filterValue: rawFileterValue,
   cards: rawCards,
   onCardDragStart,
   onCardDrop,
@@ -18,7 +18,6 @@ export function Column({
   onTextCancel,
 }: {
   title?: string
-  filterValue?: string
   text?: string
   cards?: {
     id: string
@@ -31,8 +30,8 @@ export function Column({
   onTextConfirm?(): void
   onTextCancel?(): void
 }) {
-  const filterValue = rawFileterValue?.trim()
-  const keywords = filterValue?.toLowerCase().split(/\s+/g) ?? []
+  const filterValue = useSelector(state => state.filterValue.trim())
+  const keywords = filterValue.toLowerCase().split(/\s+/g) ?? []
   const cards = rawCards?.filter(
     ({ text }) =>
       keywords?.every(keyword => text?.toLowerCase().includes(keyword)),
