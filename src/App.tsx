@@ -67,7 +67,7 @@ export function App() {
         },
       })
     })()
-  }, [])
+  }, [dispatch])
 
   const setText = (columnId: string, value: string) => {
     dispatch({
