@@ -1,26 +1,12 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import styled from 'styled-components'
 import { Header as _Header } from './Header'
 import { Column } from './Column'
-import { produce } from 'immer'
 import { Overlay as _Overlay } from './Overlay'
 import { DeleteDialog } from './DeleteDialog'
 import { get, put, post } from './api'
-import { randomID, reOrderCards, sortBy } from './util'
+import { randomID, reOrderCards } from './util'
 import { useDispatch, useSelector } from 'react-redux'
-
-type State = {
-  columns?: {
-    id: string
-    title?: string
-    text?: string
-    cards?: {
-      id: string
-      text?: string
-    }[]
-  }[]
-  cardsOrder: Record<string, string | null>
-}
 
 export function App() {
   const dispatch = useDispatch()
@@ -59,7 +45,6 @@ export function App() {
 
   const columns = useSelector(state => state.columns)
   const cardsOrder = useSelector(state => state.cardsOrder)
-  const setData = fn => fn({ cardsOrder: {} })
 
   useEffect(() => {
     ;(async () => {
@@ -85,13 +70,13 @@ export function App() {
   }, [])
 
   const setText = (columnId: string, value: string) => {
-    setData(
-      produce((draft: State) => {
-        const column = draft.columns?.find(col => col.id === columnId)
-        if (!column) return
-        column.text = value
-      }),
-    )
+    dispatch({
+      type: 'InputForm.SetText',
+      payload: {
+        columnId: columnId,
+        text: value,
+      },
+    })
   }
 
   const addCard = async (columnId: string) => {
@@ -101,20 +86,16 @@ export function App() {
     const cardId = randomID()
     const newCardsOrder = reOrderCards(cardsOrder, cardId, cardsOrder[columnId])
 
-    setData(
-      produce((draft: State) => {
-        const coulumn = draft.columns?.find(col => col.id === columnId)
-        if (!coulumn?.cards) return
-        coulumn.cards.unshift({
-          id: cardId,
-          text: coulumn.text,
-        })
-        draft.cardsOrder = newCardsOrder
-      }),
-    )
+    dispatch({
+      type: 'InputForm.ConfirmInput',
+      payload: {
+        columnId: columnId,
+        cardId: cardId,
+      },
+    })
+
     await post('/cards', { id: cardId, text: text })
     await put('/cardsOrder', newCardsOrder)
-    setText(columnId, '')
   }
 
   const dropCardTo = (toId: string) => {

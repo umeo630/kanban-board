@@ -74,6 +74,20 @@ export type Action =
         toId: string
       }
     }
+  | {
+      type: 'InputForm.SetText'
+      payload: {
+        columnId: string
+        text: string
+      }
+    }
+  | {
+      type: 'InputForm.ConfirmInput'
+      payload: {
+        columnId: string
+        cardId: string
+      }
+    }
 
 export const reducer: Reducer<State, Action> = produce(
   (draft: State, action: Action) => {
@@ -146,7 +160,30 @@ export const reducer: Reducer<State, Action> = produce(
         draft.columns?.forEach(col => {
           col.cards = sortBy(unOrderedCards, draft.cardsOrder, col.id)
         })
-
+        return
+      }
+      case 'InputForm.SetText': {
+        const { columnId, text } = action.payload
+        const column = draft.columns?.find(col => col.id === columnId)
+        if (!column) return
+        column.text = text
+        return
+      }
+      case 'InputForm.ConfirmInput': {
+        const { columnId, cardId } = action.payload
+        const coulumn = draft.columns?.find(col => col.id === columnId)
+        const newCardsOrder = reOrderCards(
+          draft.cardsOrder,
+          cardId,
+          draft.cardsOrder[columnId],
+        )
+        if (!coulumn?.cards) return
+        coulumn.cards.unshift({
+          id: cardId,
+          text: coulumn.text,
+        })
+        coulumn.text = ''
+        draft.cardsOrder = newCardsOrder
         return
       }
 
