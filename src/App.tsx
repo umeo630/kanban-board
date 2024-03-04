@@ -130,15 +130,6 @@ export function App() {
         toId,
       },
     })
-    setData(
-      produce((draft: State) => {
-        draft.cardsOrder = newCardsOrder
-        const unOrderedCards = draft.columns?.flatMap(c => c.cards ?? []) ?? []
-        draft.columns?.forEach(col => {
-          col.cards = sortBy(unOrderedCards, draft.cardsOrder, col.id)
-        })
-      }),
-    )
 
     put('/cardsOrder', newCardsOrder)
   }
