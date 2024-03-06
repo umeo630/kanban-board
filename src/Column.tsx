@@ -9,7 +9,6 @@ import { useSelector } from 'react-redux'
 export function Column({
   title,
   cards: rawCards,
-  onCardDragStart,
   onCardDrop,
   text,
   onTextChange,
@@ -22,7 +21,6 @@ export function Column({
     id: string
     text?: string
   }[]
-  onCardDragStart?(id: string): void
   onCardDrop?(entired: string | null): void
   onTextChange?(value: string): void
   onTextConfirm?(): void
@@ -45,15 +43,7 @@ export function Column({
     setInputMode(false)
     onTextCancel?.()
   }
-
-  const [draggingCardId, setDraggingCardId] = useState<string | undefined>(
-    undefined,
-  )
-
-  const handleCardDragStart = (id: string) => {
-    onCardDragStart?.(id)
-    setDraggingCardId(id)
-  }
+  const draggingCardId = useSelector(state => state.draggingCardId)
 
   return (
     <Container>
@@ -89,12 +79,7 @@ export function Column({
                 }
                 onDrop={() => onCardDrop?.(id)}
               >
-                <Card
-                  id={id}
-                  text={text}
-                  onDragStart={() => handleCardDragStart(id)}
-                  onDragEnd={() => setDraggingCardId(undefined)}
-                />
+                <Card id={id} text={text} />
               </Card.DropArea>
             ))}
             <Card.DropArea

@@ -2,22 +2,11 @@ import React, { useRef, useState } from 'react'
 import styled from 'styled-components'
 import * as color from './color'
 import { CheckIcon as _CheckIcon, TrashIcon } from './icon'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 Card.DropArea = DropArea
 
-export function Card({
-  id,
-  text,
-  onDragStart,
-  onDragEnd,
-}: {
-  id: string
-  text?: string
-  onDragStart?(): void
-  onDragEnd?(): void
-}) {
-  const [drag, setDrag] = useState(false)
+export function Card({ id, text }: { id: string; text?: string }) {
   const dispatch = useDispatch()
   const onDeleteClick = () => {
     dispatch({
@@ -27,16 +16,22 @@ export function Card({
       },
     })
   }
+  const isDragging = useSelector(state => state.draggingCardId)
   return (
     <Container
-      style={{ opacity: drag ? 0.5 : undefined }}
+      style={{ opacity: isDragging ? 0.5 : undefined }}
       onDragStart={() => {
-        onDragStart?.()
-        setDrag(true)
+        dispatch({
+          type: 'Card.StartDragging',
+          payload: {
+            cardId: id,
+          },
+        })
       }}
       onDragEnd={() => {
-        onDragEnd?.()
-        setDrag(false)
+        dispatch({
+          type: 'Card.EndDragging',
+        })
       }}
     >
       <CheckIcon />

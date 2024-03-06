@@ -63,10 +63,13 @@ export type Action =
       type: 'Dialog.ConfirmDelete'
     }
   | {
-      type: 'App.SetDraggingCardId'
+      type: 'Card.StartDragging'
       payload: {
         cardId: string
       }
+    }
+  | {
+      type: 'Card.EndDragging'
     }
   | {
       type: 'Card.Drop'
@@ -139,9 +142,13 @@ export const reducer: Reducer<State, Action> = produce(
 
         return
       }
-      case 'App.SetDraggingCardId': {
+      case 'Card.StartDragging': {
         const { cardId } = action.payload
         draft.draggingCardId = cardId
+        return
+      }
+      case 'Card.EndDragging': {
+        draft.draggingCardId = undefined
         return
       }
       case 'Card.Drop': {

@@ -12,14 +12,6 @@ export function App() {
   const dispatch = useDispatch()
 
   const draggingCardId = useSelector(state => state.draggingCardId)
-  const setDraggingCardId = (cardId: string) =>
-    dispatch({
-      type: 'App.SetDraggingCardId',
-      payload: {
-        cardId,
-      },
-    })
-
   const isDeletingCard = useSelector(state => Boolean(state.deletingCardId))
 
   const cancelDelete = () => {
@@ -114,7 +106,6 @@ export function App() {
                 key={columId}
                 title={title}
                 cards={cards}
-                onCardDragStart={cardId => setDraggingCardId(cardId)}
                 onCardDrop={entered => dropCardTo(entered ?? columId)}
                 text={text}
                 onTextChange={value => setText(columId, value)}
