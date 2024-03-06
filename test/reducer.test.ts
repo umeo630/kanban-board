@@ -101,12 +101,12 @@ test('App.SetCards', async () => {
   assert.deepStrictEqual(next, expected)
 })
 
-test('App.SetDeletingCardId', () => {
+test('Card.SetDeletingCardId', () => {
   const prev = produce(initialState, draft => {
     draft.deletingCardId = undefined
   })
   const next = reducer(prev, {
-    type: 'App.SetDeletingCardId',
+    type: 'Card.SetDeletingCardId',
     payload: { cardId: 'A' },
   })
   const expected = produce(initialState, prev => {

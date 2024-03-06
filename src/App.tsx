@@ -22,15 +22,6 @@ export function App() {
 
   const isDeletingCard = useSelector(state => Boolean(state.deletingCardId))
 
-  const setDeletingCardId = (cardId: string) => {
-    dispatch({
-      type: 'App.SetDeletingCardId',
-      payload: {
-        cardId,
-      },
-    })
-  }
-
   const cancelDelete = () => {
     dispatch({
       type: 'Dialog.CancelDeleteCard',
@@ -125,7 +116,6 @@ export function App() {
                 cards={cards}
                 onCardDragStart={cardId => setDraggingCardId(cardId)}
                 onCardDrop={entered => dropCardTo(entered ?? columId)}
-                onCardDeleteClick={cardId => setDeletingCardId(cardId)}
                 text={text}
                 onTextChange={value => setText(columId, value)}
                 onTextConfirm={() => addCard(columId)}

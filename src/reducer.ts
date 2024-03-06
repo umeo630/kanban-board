@@ -51,7 +51,7 @@ export type Action =
       }
     }
   | {
-      type: 'App.SetDeletingCardId'
+      type: 'Card.SetDeletingCardId'
       payload: {
         cardId: string
       }
@@ -112,7 +112,7 @@ export const reducer: Reducer<State, Action> = produce(
         })
         return
       }
-      case 'App.SetDeletingCardId': {
+      case 'Card.SetDeletingCardId': {
         const { cardId } = action.payload
         draft.deletingCardId = cardId
         return

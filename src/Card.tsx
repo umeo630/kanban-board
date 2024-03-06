@@ -2,21 +2,31 @@ import React, { useRef, useState } from 'react'
 import styled from 'styled-components'
 import * as color from './color'
 import { CheckIcon as _CheckIcon, TrashIcon } from './icon'
+import { useDispatch } from 'react-redux'
 
 Card.DropArea = DropArea
 
 export function Card({
+  id,
   text,
   onDragStart,
   onDragEnd,
-  onDeleteClick,
 }: {
+  id: string
   text?: string
   onDragStart?(): void
   onDragEnd?(): void
-  onDeleteClick?(): void
 }) {
   const [drag, setDrag] = useState(false)
+  const dispatch = useDispatch()
+  const onDeleteClick = () => {
+    dispatch({
+      type: 'Card.SetDeletingCardId',
+      payload: {
+        cardId: id,
+      },
+    })
+  }
   return (
     <Container
       style={{ opacity: drag ? 0.5 : undefined }}
