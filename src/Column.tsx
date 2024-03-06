@@ -7,21 +7,21 @@ import { InputForm as _InputForm } from './InputForm'
 import { useSelector } from 'react-redux'
 
 export function Column({
+  columnId,
   title,
   cards: rawCards,
-  onCardDrop,
   text,
   onTextChange,
   onTextConfirm,
   onTextCancel,
 }: {
+  columnId: string
   title?: string
   text?: string
   cards?: {
     id: string
     text?: string
   }[]
-  onCardDrop?(entired: string | null): void
   onTextChange?(value: string): void
   onTextConfirm?(): void
   onTextCancel?(): void
@@ -72,23 +72,23 @@ export function Column({
           <VerticalScroll>
             {cards.map(({ id, text }, i) => (
               <Card.DropArea
+                targetId={id}
                 key={id}
                 disabled={
                   draggingCardId !== undefined &&
                   (draggingCardId === id || cards[i - 1]?.id === draggingCardId)
                 }
-                onDrop={() => onCardDrop?.(id)}
               >
                 <Card id={id} text={text} />
               </Card.DropArea>
             ))}
             <Card.DropArea
+              targetId={columnId}
               style={{ height: '100%' }}
               disabled={
                 draggingCardId !== undefined &&
                 cards[cards.length - 1]?.id === draggingCardId
               }
-              onDrop={() => onCardDrop?.(null)}
             />
           </VerticalScroll>
         </>

@@ -11,7 +11,6 @@ import { useDispatch, useSelector } from 'react-redux'
 export function App() {
   const dispatch = useDispatch()
 
-  const draggingCardId = useSelector(state => state.draggingCardId)
   const isDeletingCard = useSelector(state => Boolean(state.deletingCardId))
 
   const cancelDelete = () => {
@@ -75,23 +74,6 @@ export function App() {
     await put('/cardsOrder', newCardsOrder)
   }
 
-  const dropCardTo = (toId: string) => {
-    const fromId = draggingCardId
-    if (!fromId) return
-    if (fromId === toId) return
-
-    const newCardsOrder = reOrderCards(cardsOrder, fromId, toId)
-
-    dispatch({
-      type: 'Card.Drop',
-      payload: {
-        toId,
-      },
-    })
-
-    put('/cardsOrder', newCardsOrder)
-  }
-
   return (
     <Container>
       <Header />
@@ -103,10 +85,10 @@ export function App() {
           ) : (
             columns.map(({ id: columId, title, cards, text }) => (
               <Column
+                columnId={columId}
                 key={columId}
                 title={title}
                 cards={cards}
-                onCardDrop={entered => dropCardTo(entered ?? columId)}
                 text={text}
                 onTextChange={value => setText(columId, value)}
                 onTextConfirm={() => addCard(columId)}

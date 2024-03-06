@@ -3,6 +3,8 @@ import styled from 'styled-components'
 import * as color from './color'
 import { CheckIcon as _CheckIcon, TrashIcon } from './icon'
 import { useDispatch, useSelector } from 'react-redux'
+import { reOrderCards } from './util'
+import { put } from './api'
 
 Card.DropArea = DropArea
 
@@ -103,20 +105,24 @@ const Link = styled.a.attrs({
 `
 
 function DropArea({
+  targetId: toId,
   disabled,
-  onDrop,
   children,
   className,
   style,
 }: {
+  targetId: string
   disabled?: boolean
-  onDrop?(): void
   children?: React.ReactNode
   className?: string
   style?: React.CSSProperties
 }) {
   const [isTarget, setIsTarget] = useState(false)
   const visible = !disabled && isTarget
+
+  const dispatch = useDispatch()
+  const draggingCardId = useSelector(state => state.draggingCardId)
+  const cardsOrder = useSelector(state => state.cardsOrder)
 
   const [dragOver, onDragOver] = useDragAutoLeave()
 
@@ -137,9 +143,19 @@ function DropArea({
       }}
       onDrop={() => {
         if (disabled) return
+        const fromId = draggingCardId
+        if (!fromId) return
+        if (fromId === toId) return
 
         setIsTarget(false)
-        onDrop?.()
+        dispatch({
+          type: 'Card.Drop',
+          payload: {
+            toId: toId,
+          },
+        })
+        const newCardsOrder = reOrderCards(cardsOrder, fromId, toId)
+        put('/cardsOrder', newCardsOrder)
       }}
     >
       <DropAreaIndicator
