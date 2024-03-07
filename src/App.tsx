@@ -4,8 +4,7 @@ import { Header as _Header } from './Header'
 import { Column } from './Column'
 import { Overlay as _Overlay } from './Overlay'
 import { DeleteDialog } from './DeleteDialog'
-import { get, put, post } from './api'
-import { randomID, reOrderCards } from './util'
+import { get } from './api'
 import { useDispatch, useSelector } from 'react-redux'
 
 export function App() {
@@ -20,7 +19,6 @@ export function App() {
   }
 
   const columns = useSelector(state => state.columns)
-  const cardsOrder = useSelector(state => state.cardsOrder)
 
   useEffect(() => {
     ;(async () => {
@@ -45,35 +43,6 @@ export function App() {
     })()
   }, [dispatch])
 
-  const setText = (columnId: string, value: string) => {
-    dispatch({
-      type: 'InputForm.SetText',
-      payload: {
-        columnId: columnId,
-        text: value,
-      },
-    })
-  }
-
-  const addCard = async (columnId: string) => {
-    const column = columns?.find(col => col.id === columnId)
-    if (!column) return
-    const text = column.text
-    const cardId = randomID()
-    const newCardsOrder = reOrderCards(cardsOrder, cardId, cardsOrder[columnId])
-
-    dispatch({
-      type: 'InputForm.ConfirmInput',
-      payload: {
-        columnId: columnId,
-        cardId: cardId,
-      },
-    })
-
-    await post('/cards', { id: cardId, text: text })
-    await put('/cardsOrder', newCardsOrder)
-  }
-
   return (
     <Container>
       <Header />
@@ -83,15 +52,12 @@ export function App() {
           {!columns ? (
             <Loading />
           ) : (
-            columns.map(({ id: columId, title, cards, text }) => (
+            columns.map(({ id: columId, title, cards }) => (
               <Column
                 columnId={columId}
                 key={columId}
                 title={title}
                 cards={cards}
-                text={text}
-                onTextChange={value => setText(columId, value)}
-                onTextConfirm={() => addCard(columId)}
               />
             ))
           )}

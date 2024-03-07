@@ -10,10 +10,6 @@ export function Column({
   columnId,
   title,
   cards: rawCards,
-  text,
-  onTextChange,
-  onTextConfirm,
-  onTextCancel,
 }: {
   columnId: string
   title?: string
@@ -22,9 +18,6 @@ export function Column({
     id: string
     text?: string
   }[]
-  onTextChange?(value: string): void
-  onTextConfirm?(): void
-  onTextCancel?(): void
 }) {
   const filterValue = useSelector(state => state.filterValue.trim())
   const keywords = filterValue.toLowerCase().split(/\s+/g) ?? []
@@ -36,12 +29,9 @@ export function Column({
 
   const [inputMode, setInputMode] = useState(false)
   const toggleInput = () => setInputMode(v => !v)
-  const confirmInput = () => {
-    onTextConfirm?.()
-  }
+
   const cancelInput = () => {
     setInputMode(false)
-    onTextCancel?.()
   }
   const draggingCardId = useSelector(state => state.draggingCardId)
 
@@ -54,14 +44,7 @@ export function Column({
         <AddButton onClick={toggleInput} />
       </Header>
 
-      {inputMode && (
-        <InputForm
-          value={text}
-          onChange={onTextChange}
-          onConfirm={confirmInput}
-          onCancel={cancelInput}
-        />
-      )}
+      {inputMode && <InputForm columnId={columnId} onCancel={cancelInput} />}
 
       {!cards ? (
         <Loading />
