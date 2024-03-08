@@ -9,15 +9,12 @@ import { useDispatch, useSelector } from 'react-redux'
 
 export function App() {
   const dispatch = useDispatch()
-
   const isDeletingCard = useSelector(state => Boolean(state.deletingCardId))
-
   const cancelDelete = () => {
     dispatch({
       type: 'Dialog.CancelDeleteCard',
     })
   }
-
   const columns = useSelector(state => state.columns)
 
   useEffect(() => {
@@ -52,13 +49,8 @@ export function App() {
           {!columns ? (
             <Loading />
           ) : (
-            columns.map(({ id: columId, title, cards }) => (
-              <Column
-                columnId={columId}
-                key={columId}
-                title={title}
-                cards={cards}
-              />
+            columns.map(({ id: columId }) => (
+              <Column key={columId} columnId={columId} />
             ))
           )}
         </HorizontalScroll>
