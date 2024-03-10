@@ -2,20 +2,13 @@ import React, { useEffect } from 'react'
 import styled from 'styled-components'
 import { Header as _Header } from './Header'
 import { Column } from './Column'
-import { Overlay as _Overlay } from './Overlay'
-import { DeleteDialog } from './DeleteDialog'
 import { get } from './api'
 import { useDispatch, useSelector } from 'react-redux'
+import { DialogOverlay } from './DialogOverlay'
 
 export function App() {
   const dispatch = useDispatch()
   const columns = useSelector(state => state.columns)
-  const isDeletingCard = useSelector(state => Boolean(state.deletingCardId))
-  const cancelDelete = () => {
-    dispatch({
-      type: 'Dialog.CancelDeleteCard',
-    })
-  }
 
   useEffect(() => {
     ;(async () => {
@@ -55,11 +48,7 @@ export function App() {
           )}
         </HorizontalScroll>
       </MainArea>
-      {isDeletingCard && (
-        <Overlay onClick={cancelDelete}>
-          <DeleteDialog />
-        </Overlay>
-      )}
+      <DialogOverlay />
     </Container>
   )
 }
@@ -98,11 +87,6 @@ const HorizontalScroll = styled.div`
   }
 `
 
-const Overlay = styled(_Overlay)`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`
 const Loading = styled.div.attrs({
   children: 'Loading...',
 })`
