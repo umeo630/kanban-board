@@ -9,13 +9,13 @@ import { useDispatch, useSelector } from 'react-redux'
 
 export function App() {
   const dispatch = useDispatch()
+  const columns = useSelector(state => state.columns)
   const isDeletingCard = useSelector(state => Boolean(state.deletingCardId))
   const cancelDelete = () => {
     dispatch({
       type: 'Dialog.CancelDeleteCard',
     })
   }
-  const columns = useSelector(state => state.columns)
 
   useEffect(() => {
     ;(async () => {
